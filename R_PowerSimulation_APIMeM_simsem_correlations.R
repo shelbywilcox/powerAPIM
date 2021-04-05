@@ -1,18 +1,9 @@
 #######################################################################################################################
-### P o w e r   A n a l y s i s   f o r   t h e   M e d i a t i o n   A P I M   u s i n g   c o r r e l a t i o n s ###
+### P o w e r   A n a l y s i s   f o r   t h e   M e d i a t i o n   A P I M   u s i n g   C o r r e l a t i o n s ###
 ### Author: Thomas Ledermann                                                                                        ###
 ### Date: November 2020                                                                                             ###
+### Last update: April 5, 2021                                                                                      ###
 #######################################################################################################################
-
-if(!require("lavaan")) install.packages("lavaan")
-if(!require("paramtest")) install.packages("paramtest")
-if(!require("simsem")) install.packages("BinNor")
-if(!require("dplyr")) install.packages("dplyr")
-
-library(lavaan)
-library(paramtest)
-library(simsem)
-library(dplyr)
 
 sampleSize <- 100
 alphaLevel <- .05		# significance level
@@ -41,6 +32,18 @@ vM1 <- 1		# VAR(M1), can be set to 1
 vM2 <- 1		# VAR(M2), can be set to 1
 vY1 <- 1		# VAR(Y1), can be set to 1
 vY2 <- 1		# VAR(Y2), can be set to 1
+
+
+# install and load package
+if(!require("lavaan")) install.packages("lavaan")
+if(!require("paramtest")) install.packages("paramtest")
+if(!require("simsem")) install.packages("BinNor")
+if(!require("dplyr")) install.packages("dplyr")
+
+library(lavaan)
+library(paramtest)
+library(simsem)
+library(dplyr)
 
 # Covariance matrix
 rMat <- matrix(NA, 6, 6)
