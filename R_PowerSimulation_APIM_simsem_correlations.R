@@ -1,8 +1,8 @@
 #############################################################################################################
 ### P o w e r   A n a l y s i s   f o r   a   S i m p l e   A P I M   u s i n g   C o r r e l a t i o n s ###
 ### Author: Thomas Ledermann                                                                              ###
-### Date created: November 2020                                                                           ###
-### Last update: April 5, 2021                                                                            ###
+### Created: November 22, 2020                                                                            ###
+### Last update: April 6, 2021                                                                            ###
 #############################################################################################################
 
 sampleSize <- 100
@@ -26,7 +26,7 @@ vY2 <- 1		# VAR(Y2), can be set to 1
 # install and load packages
 if(!require("lavaan")) install.packages("lavaan")
 if(!require("paramtest")) install.packages("paramtest")
-if(!require("simsem")) install.packages("BinNor")
+if(!require("simsem")) install.packages("simsem")
 if(!require("dplyr")) install.packages("dplyr")
 
 library(lavaan)
