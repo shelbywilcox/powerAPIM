@@ -301,9 +301,10 @@ round(summaryParam(ipowerSimSk$ipSimEst[[1]], detail = TRUE, alpha = 0.05), 3)
 sampleSizes <- seq(75, 3200, 25)
 lowerN <- min(sampleSizes)
 upperN <- max(sampleSizes)
+nRep <- 1000	# number of replications
 
 iSimNestSk <- imodels %>% do({
-	iSimNSk <- sim(nRep = NULL, model = .$fit[1], n = rep(sampleSizes, nRep), generate = .$gen[1], indDist = distsk, lavaanfun = "sem")
+	iSimNSk <- sim(nRep = NULL, model = .$fit[1], n = rep(sampleSizes, nRep), generate = .$gen[1], indDist = distSk, lavaanfun = "sem")
 	data_frame(AE1 = .$AE1, AE2 = .$AE2, PE21 = .$PE21, PE12 = .$PE12, covX = .$covX, covY = .$covY, varY1 = .$varY1, varY2 = .$varY2,
 	iSimEstNSk = list(iSimNSk))
 })
@@ -333,9 +334,10 @@ round(summaryParam(ipowerSimKu$ipSimEst[[1]], detail = TRUE, alpha = 0.05), 3)
 sampleSizes <- seq(25, 800, 25)
 lowerN <- min(sampleSizes)
 upperN <- max(sampleSizes)
+nRep <- 1000	# number of replications
 
 iSimNestKu <- imodels %>% do({
-	iSimNKu <- sim(nRep = NULL, model = .$fit[1], n = rep(sampleSizes, nRep), generate = .$gen[1], indDist = distku, lavaanfun = "sem")
+	iSimNKu <- sim(nRep = NULL, model = .$fit[1], n = rep(sampleSizes, nRep), generate = .$gen[1], indDist = distKu, lavaanfun = "sem")
 	data_frame(AE1 = .$AE1, AE2 = .$AE2, PE21 = .$PE21, PE12 = .$PE12, covX = .$covX, covY = .$covY, varY1 = .$varY1, varY2 = .$varY2,
 	iSimEstNKu = list(iSimNKu))
 })
