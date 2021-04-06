@@ -312,8 +312,8 @@ isampleSizeEstSk <-findPower(iNestSk, iv = "N", power = 0.80)
 isampleSizeEstSk
 
 
-## Kurtosis: skewness = (0, 0, 0, 0), kurtosis = (0, 0, 3, 3)
-distKu <- bindDist(skewness = c(0, 0, 0, 0), kurtosis = c(0, 0, 3, 3))
+## Kurtosis: skewness = (0, 0, 0, 0), kurtosis = (0, 0, 8, 8)
+distKu <- bindDist(skewness = c(0, 0, 0, 0), kurtosis = c(0, 0, 8, 8))
 ipowerSimKu <- imodels %>% do({
 	ipSim <- sim(nRep = nsim, model = .$fit[1], n = sampleSize, generate = .$gen[1], indDist = distKu, lavaanfun = "sem")
 	data_frame(AE1 = .$AE1, AE2 = .$AE2, PE21 = .$PE21, PE12 = .$PE12, covX = .$covX, covY = .$covY, varY1 = .$varY1, varY2 = .$varY2,
