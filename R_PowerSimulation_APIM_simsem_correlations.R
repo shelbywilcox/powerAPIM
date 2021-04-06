@@ -327,7 +327,7 @@ ipowerSimKu
 ipowerEstKu <- getPower(ipowerSimKu$ipSimEst[[1]], powerParam = c('AE1', 'AE2', 'PE21', 'PE12', 'covX', 'covY'))
 ipowerEstKu
 
-round(summaryParam(ipowerSimNku$ipSimEst[[1]], detail = TRUE, alpha = 0.05), 3)
+round(summaryParam(ipowerSimKu$ipSimEst[[1]], detail = TRUE, alpha = 0.05), 3)
 
 # Find sample size
 sampleSizes <- seq(25, 800, 25)
