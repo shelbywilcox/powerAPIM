@@ -2,7 +2,7 @@
 ### P o w e r   A n a l y s i s   f o r   t h e   M e d i a t i o n   A P I M   u s i n g   C o r r e l a t i o n s ###
 ### Author: Thomas Ledermann                                                                                        ###
 ### Created: November 22, 2020                                                                                      ###
-### Last update: April 6, 2021                                                                                      ###
+### Last update: April 19, 2021                                                                                      ###
 #######################################################################################################################
 
 sampleSize <- 100
@@ -101,7 +101,7 @@ APIMeM <- '
 	t12 := aa1*bp12 + ap12*ba2 + cp12
 	t21 := aa2*bp21 + ap21*ba1 + cp21
 '
-fit <- sem(APIMeM, sample.cov = covMat, sample.nobs = 100000)
+fit <- sem(APIMeM, sample.cov = covMat, sample.nobs = 500000)
 summary(fit, standardized = TRUE, rsquare = TRUE)
 
 ests <- parameterEstimates(fit)
@@ -205,6 +205,7 @@ powerSim <- models %>% do({
 # Point estimates of the population model
 powerSim
 
+# Power estimates and other statistics
 round(summaryParam(powerSim$pSimEst[[1]], detail = TRUE, alpha = 0.05), 3)
 
 # Distinguishable members - No names for additional statistics 
@@ -254,6 +255,7 @@ powerSimNoNames <- modelsNoNames %>% do({
 	pSimEst = list(pSim))
 })
 
+# Power estimates and other statistics
 round(summaryParam(powerSimNoNames$pSimEst[[1]], detail = TRUE, alpha = 0.05), 3)
 
 
@@ -334,7 +336,7 @@ iAPIMeM <- '
 	t21 := aa2*bp21 + ap21*ba1 + cp21
 '
 
-ifit <- sem(iAPIMeM, sample.cov = covMat, sample.nobs = 100000)
+ifit <- sem(iAPIMeM, sample.cov = covMat, sample.nobs = 500000)
 summary(ifit, standardized = TRUE, rsquare = TRUE)
 
 iests <- parameterEstimates(ifit)
@@ -438,16 +440,17 @@ imodels <- ipopEst %>% rowwise() %>% do({
 })
 imodels
 
-
 ipowerSim <- imodels %>% do({
 	ipSim <- sim(nRep = nsim, model = .$fit[1], n = sampleSize, generate = .$gen[1], lavaanfun = "sem")
 	data_frame(aA1 = .$aA1, aA2 = .$aA2, bA1 = .$bA1, bA2 = .$bA2, cA1 = .$cA1, cA2 = .$cA2, aP21 = .$aP21, aP12 = .$aP12, bP21 = .$bP21, bP12 = .$bP12, cP21 = .$cP21, cP12 = .$cP12, covX = .$covX, covM = .$covM, covY = .$covY,
 	ipSimEst = list(ipSim))
 })
 
-# Point estimates of the model
+
+# Point estimates of the population model
 ipowerSim
 
+# Power estimates and other statistics
 round(summaryParam(ipowerSim$ipSimEst[[1]], detail = TRUE, alpha = 0.05), 3)
 
 

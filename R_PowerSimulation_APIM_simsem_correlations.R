@@ -1,9 +1,9 @@
-#############################################################################################################
-### P o w e r   A n a l y s i s   f o r   a   S i m p l e   A P I M   u s i n g   C o r r e l a t i o n s ###
-### Author: Thomas Ledermann                                                                              ###
-### Created: November 22, 2020                                                                            ###
-### Last update: April 6, 2021                                                                            ###
-#############################################################################################################
+#################################################################################################################
+### P o w e r   A n a l y s i s   f o r   t h e   S i m p l e   A P I M   u s i n g   C o r r e l a t i o n s ###
+### Author: Thomas Ledermann                                                               \                  ###
+### Created: November 22, 2020                                                                                ###
+### Last update: April 19, 2021                                                                                ###
+#################################################################################################################
 
 sampleSize <- 100
 alphaLevel <- .05		# significance level
@@ -57,7 +57,7 @@ APIM <- '
 	k2 := p12/a2
 '
 
-fit <- sem(APIM, sample.cov = covMat, sample.nobs = 100000)
+fit <- sem(APIM, sample.cov = covMat, sample.nobs = 500000)
 summary(fit, standardized = TRUE, rsquare = TRUE)
 
 ests <- parameterEstimates(fit)
@@ -112,13 +112,15 @@ powerSim <- models %>% do({
 # Point estimates of the population model
 powerSim
 
+# Power estimates and other statistics
 round(summaryParam(powerSim$pSimEst[[1]], detail = TRUE, alpha = 0.05), 3)
+
+# Coverage
 CoverN <- getCoverage(powerSim$pSimEst[[1]], coverParam = c('AE1', 'AE2', 'PE21', 'PE12', 'covX', 'covY'))
+CoverN
 
-
+# Power Estimates
 pEst <- getPower(powerSim$pSimEst[[1]], powerParam = c('AE1', 'AE2', 'PE21', 'PE12', 'covX', 'covY'))
-pEst
-pEst <- getPower(powerSim$pSimEst[[1]])
 pEst
 
 
@@ -153,7 +155,10 @@ powerSimNoNames <- modelsNoNames %>% do({
 	pSimEst = list(pSim))
 })
 
+# Power Estimates and other statistics
 round(summaryParam(powerSimNoNames$pSimEst[[1]], detail = TRUE, alpha = 0.05), 3)
+
+# Coverage
 CoverN <- getCoverage(powerSimNoNames$pSimEst[[1]], coverParam = c('AE1', 'AE2', 'PE21', 'PE12', 'covX', 'covY'))
 CoverN
 
@@ -169,14 +174,14 @@ upperN <- max(sampleSizes)
 nRep <- 1000	# number of replications
 
 SimNest <- models %>% do({
-	SimN <- sim(nRep = NULL, model = .$fit[1], n = rep(sampleSizes, nRep), generate = .$gen[1], 
-	lavaanfun = "sem")
-	data_frame(AE1 = .$AE1, AE2 = .$AE2, PE21 = .$PE21, PE12 = .$PE12, covX = .$covX, covY = .$covY, varY1 = .$varY1, varY2 = .$varY2,
+	SimN <- sim(nRep = NULL, model = .$fit[1], n = rep(sampleSizes, nRep), generate = .$gen[1], lavaanfun = "sem")
+	data_frame(AE1 = .$AE1, AE2 = .$AE2, PE21 = .$PE21, PE12 = .$PE12, covX = .$covX, covY = .$covY,
 	SimEstN = list(SimN))
 })
 Nest <- getPower(SimNest$SimEstN[[1]], powerParam = c('AE1', 'AE2', 'PE21', 'PE12', 'covX', 'covY'), nVal = lowerN:upperN)
-sampleSizeEst <- getfindPower(Nest, iv = "N", power = 0.80)
+sampleSizeEst <- findPower(Nest, iv = "N", power = 0.80)
 sampleSizeEst
+
 
 
 ### Indistinguishable members
@@ -199,7 +204,7 @@ iAPIM <- '
 	k2 := p12/a2
 '
 
-ifit <- sem(iAPIM, sample.cov = covMat, sample.nobs = 100000)
+ifit <- sem(iAPIM, sample.cov = covMat, sample.nobs = 500000)
 summary(ifit, standardized = TRUE, rsquare = TRUE)
 
 iests <- parameterEstimates(ifit)
@@ -253,7 +258,7 @@ ipowerSim <- imodels %>% do({
 	ipSimEst = list(ipSim))
 })
 
-# Point estimates of the model
+# Point estimates of the population model
 ipowerSim
 
 # Power Estimates
@@ -288,7 +293,7 @@ ipowerSimSk <- imodels %>% do({
 	ipSimEst = list(ipSim))
 })
 
-# Point estimates of the model
+# Point estimates of the population model
 ipowerSimSk
 
 # Power Estimates
@@ -313,15 +318,15 @@ isampleSizeEstSk <-findPower(iNestSk, iv = "N", power = 0.80)
 isampleSizeEstSk
 
 
-## Kurtosis: skewness = (0, 0, 0, 0), kurtosis = (0, 0, 8, 8)
-distKu <- bindDist(skewness = c(0, 0, 0, 0), kurtosis = c(0, 0, 8, 8))
+## Kurtosis: skewness = (0, 0, 0, 0), kurtosis = (0, 0, 21, 21)
+distKu <- bindDist(skewness = c(0, 0, 0, 0), kurtosis = c(0, 0, 21, 21))
 ipowerSimKu <- imodels %>% do({
 	ipSim <- sim(nRep = nsim, model = .$fit[1], n = sampleSize, generate = .$gen[1], indDist = distKu, lavaanfun = "sem")
 	data_frame(AE1 = .$AE1, AE2 = .$AE2, PE21 = .$PE21, PE12 = .$PE12, covX = .$covX, covY = .$covY, varY1 = .$varY1, varY2 = .$varY2,
 	ipSimEst = list(ipSim))
 })
 
-# Point estimates of the model
+# Point estimates of the population model
 ipowerSimKu
 
 # Power Estimates
