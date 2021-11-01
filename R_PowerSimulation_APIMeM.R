@@ -2,7 +2,7 @@
 ### P o w e r   A n a l y s i s   f o r   t h e   M e d i a t i o n   A P I M   u s i n g   C o r r e l a t i o n s ###
 ### Author: Thomas Ledermann                                                                                        ###
 ### Created: November 22, 2020                                                                                      ###
-### Last update: April 19, 2021                                                                                     ###
+### Last update: November 1, 2021                                                                                   ###
 #######################################################################################################################
 
 sampleSize <- 100
@@ -37,7 +37,7 @@ vY2 <- 1		# VAR(Y2), can be set to 1
 # install and load package
 if(!require("lavaan")) install.packages("lavaan")
 if(!require("paramtest")) install.packages("paramtest")
-if(!require("simsem")) install.packages("BinNor")
+if(!require("simsem")) install.packages("simsem")
 if(!require("dplyr")) install.packages("dplyr")
 
 library(lavaan)
@@ -101,7 +101,7 @@ APIMeM <- '
 	t12 := aa1*bp12 + ap12*ba2 + cp12
 	t21 := aa2*bp21 + ap21*ba1 + cp21
 '
-fit <- sem(APIMeM, sample.cov = covMat, sample.nobs = 500000)
+fit <- sem(APIMeM, sample.cov = covMat, sample.nobs = 100000)
 summary(fit, standardized = TRUE, rsquare = TRUE)
 
 ests <- parameterEstimates(fit)
@@ -336,7 +336,7 @@ iAPIMeM <- '
 	t21 := aa2*bp21 + ap21*ba1 + cp21
 '
 
-ifit <- sem(iAPIMeM, sample.cov = covMat, sample.nobs = 500000)
+ifit <- sem(iAPIMeM, sample.cov = covMat, sample.nobs = 100000)
 summary(ifit, standardized = TRUE, rsquare = TRUE)
 
 iests <- parameterEstimates(ifit)
