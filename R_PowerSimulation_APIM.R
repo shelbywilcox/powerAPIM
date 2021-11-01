@@ -2,7 +2,7 @@
 ### P o w e r   A n a l y s i s   f o r   t h e   S i m p l e   A P I M   u s i n g   C o r r e l a t i o n s ###
 ### Author: Thomas Ledermann                                                                                  ###
 ### Created: November 22, 2020                                                                                ###
-### Last update: April 19, 2021                                                                               ###
+### Last update: November 1, 2021                                                                             ###
 #################################################################################################################
 
 sampleSize <- 100
@@ -57,7 +57,7 @@ APIM <- '
 	k2 := p12/a2
 '
 
-fit <- sem(APIM, sample.cov = covMat, sample.nobs = 500000)
+fit <- sem(APIM, sample.cov = covMat, sample.nobs = 100000)
 summary(fit, standardized = TRUE, rsquare = TRUE)
 
 ests <- parameterEstimates(fit)
@@ -204,7 +204,7 @@ iAPIM <- '
 	k2 := p12/a2
 '
 
-ifit <- sem(iAPIM, sample.cov = covMat, sample.nobs = 500000)
+ifit <- sem(iAPIM, sample.cov = covMat, sample.nobs = 100000)
 summary(ifit, standardized = TRUE, rsquare = TRUE)
 
 iests <- parameterEstimates(ifit)
