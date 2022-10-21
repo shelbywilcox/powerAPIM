@@ -1,7 +1,7 @@
 ###############################################################################################################
-### P o w e r   S i m u l a t i o n   f o r   a   M E D I A T I O N   A P I M   u s i n g   R a w   D a t a ###
+### P o w e r   S i m u l a t i o n   f o r   a   M e d i a t i o n   A P I M   u s i n g   R a w   D a t a ###
 ### Author: Thomas Ledermann                                                                                ###
-### Date: January 2022                                                                                      ###
+### Date: October 2022                                                                                      ###
 ###############################################################################################################
 
 sampleSize <- 500
@@ -23,6 +23,10 @@ power <- function(raw.data, alpha = 0.05, reps = 1000, sample.size) {
 			Y2 ~ ca2*X2 + cp12*X1 + ba2*M2 + bp12*M1
 			M1 ~ aa1*X1 + ap21*X2
 			M2 ~ aa2*X2 + ap12*X1
+
+			X1 ~~ X2
+			M1 ~~ M2
+			Y1 ~~ Y2
 
 			# IE
 			ie.a1 := aa1*ba1
@@ -112,6 +116,10 @@ mod <-'	Y1 ~ ca1*X1 + cp21*X2 + ba1*M1 + bp21*M2
 	Y2 ~ ca2*X2 + cp12*X1 + ba2*M2 + bp12*M1
 	M1 ~ aa1*X1 + ap21*X2
 	M2 ~ aa2*X2 + ap12*X1
+
+	X1 ~~ X2
+	M1 ~~ M2
+	Y1 ~~ Y2
 
 	# IE
 	ie.a1 := aa1*ba1
