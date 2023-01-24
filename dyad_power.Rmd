@@ -1,0 +1,237 @@
+---
+title: "dyad_power"
+author: "Shelby Wilcox"
+date: "1/5/2023"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+## get the environment ready 
+```{r}
+#check what directory you are working out of
+getwd()
+
+#use this to ensure directory is preferred location
+setwd("C:/Users/Shelby/Documents")
+# install and load package
+#install.packages('lavaan')
+#install.packages("paramtest")
+#install.packages("simsem")
+
+library(lavaan)
+library(paramtest)
+library(simsem)
+library(dplyr)
+```
+#Begin the monte carlo simulation
+```{r}
+
+sampleSize <- 73 #this is how many to sample in a population, pool to sample from not DF
+alphaLevel <- .05		# significance level
+nsim <- 100		# number of iterations
+setSeed <- 123 #to keep output the same
+
+#variable key, F= female, M=male, C=confirmaton, SA=shared appraisal, JPA=joint physical action
+#correlatations extracted from table 1 in manuscript
+rx1x2 <- .37	# correlation between FC and MC
+rx1m1 <- .34	# correlation between FC and FSA
+rx1m2 <- .34	# correlation between FC and MSA
+rx1y1 <- .36	# correlation between FC and FJPA
+rx1y2 <- .11	# correlation between FC and MJPA
+rx2m1 <- .14	# correlation between MC and FSA
+rx2m2 <- .35	# correlation between MC and MSA
+rx2y1 <- .10	# correlation between MC and FJPA
+rx2y2 <- .12	# correlation between MC and MJPA
+rm1m2 <- .53	# correlation between FSA and MSA
+rm1y1 <- .41	# correlation between FSA and FJPA
+rm1y2 <- .40	# correlation between FSA and MJPA
+rm2y1 <- .34	# correlation between MSA and FJPA
+rm2y2 <- .33	# correlation between MSA and MJPA
+ry1y2 <- .63	# correlation between FJPA and MJPA
+
+#suggested variance
+vX1 <- 1.39		# VAR(X1), can be set to 1
+vX2 <- .902		# VAR(X2), can be set to 1
+vM1 <- 4.62		# VAR(M1), can be set to 1
+vM2 <- 4.58		# VAR(M2), can be set to 1
+vY1 <- 1.79		# VAR(Y1), can be set to 1
+vY2 <- 2.96		# VAR(Y2), can be set to 1
+```
+
+```{r}
+# Covariance matrix
+rMat <- matrix(NA, 6, 6)
+rMat[lower.tri(rMat, diag = TRUE)] <- c(1, rx1x2, rx1m1, rx1m2, rx1y1, rx1y2, 1, rx2m1, rx2m2, rx2y1, rx2y2, 1, rm1m2, rm1y1, rm1y2, 1, rm2y1, rm2y2, 1, ry1y2, 1)
+rMat[upper.tri(rMat)] <- t(rMat)[upper.tri(rMat)]
+vNames <- c('x1', 'x2', 'm1', 'm2', 'y1', 'y2')                    # Variable names
+dimnames(rMat) <- list(vNames, vNames)
+sds <- sqrt(c(vX1, vX2, vM1, vM2, vY1, vY2))
+covMat <- sds %*% t(sds) * rMat
+covMat
+```
+
+```{r}
+### Distinguishable members
+## Estimate the parameters using the covariance matrix
+APIMeM <- '	
+	y1 ~ ca1*x1 + cp21*x2 + ba1*m1 + bp21*m2
+	y2 ~ ca2*x2 + cp12*x1 + ba2*m2 + bp12*m1
+	m1 ~ aa1*x1 + ap21*x2
+	m2 ~ aa2*x2 + ap12*x1
+	y1 ~~ vy1*y1 + cy*y2
+	y2 ~~ vy2*y2
+	m1 ~~ vm1*m1 + cm*m2
+	m2 ~~ vm2*m2
+	x1 ~~ vx1*x1 + cx*x2
+	x2 ~~ vx2*x2
+	# k
+	ka1 := ap21/aa1
+	ka2 := ap12/aa2
+	kb1 := bp21/ba1
+	kb2 := bp12/ba2
+	kc1 := cp21/ca1
+	kc2 := cp12/ca2
+	# IE
+	ie.a1 := aa1*ba1
+	ie.a2 := aa2*ba2
+	ie.a1p12 := aa1*bp12
+	ie.a2p21 := aa2*bp21
+	ie.p12a2 := ap12*ba2
+	ie.p21a1 := ap21*ba1
+	ie.p12p21 := ap12*bp21
+	ie.p21p12 := ap21*bp12
+	# Total IE
+	tie11 := aa1*ba1 + ap12*bp21
+	tie22 := aa2*ba2 + ap21*bp12
+	tie12 := aa1*bp12 + ap12*ba2
+	tie21 := aa2*bp21 + ap21*ba1
+	# Total
+	t11 := aa1*ba1 + ap12*bp21 + ca1
+	t22 := aa2*ba2 + ap21*bp12 + ca2
+	t12 := aa1*bp12 + ap12*ba2 + cp12
+	t21 := aa2*bp21 + ap21*ba1 + cp21
+'
+fit <- sem(APIMeM, sample.cov = covMat, sample.nobs = 100000)
+summary(fit, standardized = TRUE, rsquare = TRUE)
+
+ests <- parameterEstimates(fit)
+ests
+
+# extract results from the lavaan output
+aA1 <- ests[ests$label == 'aa1', 'est']
+aA2 <- ests[ests$label == 'aa2', 'est']
+aP12 <- ests[ests$label == 'ap12', 'est']
+aP21 <- ests[ests$label == 'ap21', 'est']
+bA1 <- ests[ests$label == 'ba1', 'est']
+bA2 <- ests[ests$label == 'ba2', 'est']
+bP12 <- ests[ests$label == 'bp12', 'est']
+bP21 <- ests[ests$label == 'bp21', 'est']
+cA1 <- ests[ests$label == 'ca1', 'est']
+cA2 <- ests[ests$label == 'ca2', 'est']
+cP12 <- ests[ests$label == 'cp12', 'est']
+cP21 <- ests[ests$label == 'cp21', 'est']
+covX <- ests[ests$label == 'cx', 'est']
+covM <- ests[ests$label == 'cm', 'est']
+covY <- ests[ests$label == 'cy', 'est']
+varX1 <- ests[ests$label == 'vx1', 'est']
+varX2 <- ests[ests$label == 'vx2', 'est']
+varM1 <- ests[ests$label == 'vm1', 'est']
+varM2 <- ests[ests$label == 'vm2', 'est']
+varY1 <- ests[ests$label == 'vy1', 'est']
+varY2 <- ests[ests$label == 'vy2', 'est']
+
+popEst <- cbind.data.frame(aA1, aA2, aP21, aP12, bA1, bA2, bP21, bP12, cA1, cA2, cP21, cP12, covX, covM, covY, varX1, varX2, varM1, varM2, varY1, varY2)
+popEst
+
+## MC Simulation
+models <- popEst %>% rowwise() %>% do({
+	genModel <- paste0('
+		Y1 ~ ', .$bA1, '*M1
+		Y1 ~ ', .$bP21, '*M2
+		Y1 ~ ', .$cA1, '*X1
+		Y1 ~ ', .$cP21, '*X2
+		Y2 ~ ', .$bP12, '*M1
+		Y2 ~ ', .$bA2, '*M2
+		Y2 ~ ', .$cP12, '*X1
+		Y2 ~ ', .$cA2, '*X2
+		M1 ~ ', .$aA1, '*X1
+		M1 ~ ', .$aP21, '*X2
+		M2 ~ ', .$aP12, '*X1
+		M2 ~ ', .$aA2, '*X2
+		X1 ~~ ', .$covX, '*X2
+		M1 ~~ ', .$covM, '*M2
+		Y1 ~~ ', .$covY, '*Y2
+		X1 ~~ ', .$varX1, '*X1
+		X2 ~~ ', .$varX2, '*X2
+		M1 ~~ ', .$varM1, '*M1
+		M2 ~~ ', .$varM2, '*M2
+		Y1 ~~ ', .$varY1, '*Y1
+		Y2 ~~ ', .$varY2, '*Y2
+	')
+	fitModel <-'	
+		Y1 ~ cA1*X1 + cP21*X2 + bA1*M1 + bP21*M2
+		Y2 ~ cA2*X2 + cP12*X1 + bA2*M2 + bP12*M1
+		M1 ~ aA1*X1 + aP21*X2
+		M2 ~ aA2*X2 + aP12*X1
+		X1 ~~ varX1*X1 + covX*X2
+		X2 ~~ varX2*X2
+		M1 ~~ varM1*M1 + covM*M2
+		M2 ~~ varM2*M2
+		Y1 ~~ varY1*Y1 + covY*Y2
+		Y2 ~~ varY2*Y2
+		A1A1 := aA1*bA1
+		A2A2 := aA2*bA2
+		A1P12 := aA1*bP12
+		A2P21 := aA2*bP21
+		P12A2 := aP12*bA2
+		P21A1 := aP21*bA1
+		P12P21 := aP12*bP21
+		P21P12 := aP21*bP12
+		tIE11 := aA1*bA1 + aP12*bP21
+		tIE22 := aA2*bA2 + aP21*bP12
+		tIE12 := aA1*bP12 + aP12*bA2
+		tIE21 := aA2*bP21 + aP21*bA1
+		TE11 := aA1*bA1 + aP12*bP21 + cA1
+		TE22 := aA2*bA2 + aP21*bP12 + cA2
+		TE12 := aA1*bP12 + aP12*bA2 + cP12
+		TE21 := aA2*bP21 + aP21*bA1 + cP21
+	'
+	data.frame(aA1 = .$aA1, aA2 = .$aA2, bA1 = .$bA1, bA2 = .$bA2, cA1 = .$cA1, cA2 = .$cA2, aP21 = .$aP21, aP12 = .$aP12, bP21 = .$bP21, bP12 = .$bP12, cP21 = .$cP21, cP12 = .$cP12, covX = .$covX, covM = .$covM, covY = .$covY,
+		     gen = genModel, fit = fitModel, stringsAsFactors = FALSE)
+})
+models
+
+powerSim <- models %>% do({
+	pSim <- sim(nRep = nsim, model = .$fit[1], n = sampleSize, generate = .$gen[1], lavaanfun = "sem")
+	data_frame(aA1 = .$aA1, aA2 = .$aA2, bA1 = .$bA1, bA2 = .$bA2, cA1 = .$cA1, cA2 = .$cA2, aP21 = .$aP21, aP12 = .$aP12, bP21 = .$bP21, bP12 = .$bP12, cP21 = .$cP21, cP12 = .$cP12, covX = .$covX, covM = .$covM, covY = .$covY,
+	pSimEst = list(pSim))
+})
+
+# Point estimates of the population model
+powerSim
+
+# Power estimates and other statistics
+# Label column helpful for figuring out what path is being estimated
+round(summaryParam(powerSim$pSimEst[[1]], detail = TRUE, alpha = 0.05), 3)
+```
+
+```{r}
+# Find Sample Size
+sampleSizes <- seq(25, 800, 25) #sample every 25 over the length of the vector
+lowerN <- min(sampleSizes)
+upperN <- max(sampleSizes)
+nRep <- 100	# number of replications
+
+SimNest <- models %>% do({
+	SimN <- sim(nRep = NULL, model = .$fit[1], n = rep(sampleSizes, nRep), generate = .$gen[1], lavaanfun = "sem")
+	data_frame(aA1 = .$aA1, aA2 = .$aA2, bA1 = .$bA1, bA2 = .$bA2, cA1 = .$cA1, cA2 = .$cA2, aP21 = .$aP21, aP12 = .$aP12, bP21 = .$bP21, bP12 = .$bP12, cP21 = .$cP21, cP12 = .$cP12, covX = .$covX, covM = .$covM, covY = .$covY,
+	SimEstN = list(SimN))
+})
+
+Nest <- getPower(SimNest$SimEstN[[1]])
+sampleSizeEst <- findPower(Nest, iv = "N", power = 0.80)
+sampleSizeEst
+
+```
